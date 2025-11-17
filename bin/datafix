@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require 'yaml'
+
+$LOAD_PATH.unshift(File.expand_path('../lib', __dir__))
+require 'datafix'
+
+config_path = File.expand_path('../datafix.yml', __dir__)
+config = File.exist?(config_path) ? (YAML.load_file(config_path) || {}) : {}
+
+input_path = ARGV[0] || config['input_file']
+php_admin_path = ARGV[1] || config['php_admin_file']
+
+unless input_path && php_admin_path
+  abort "Usage: bin/datafix INPUT.xlsx MAPPING.yml\n" \
+        "Or set 'input_file' and 'php_admin_file' in datafix.yml"
+end
+
+input = DataFix::ParseFiles.new(input_file: input_path).parse_files(input_path)
+php_admin_data = DataFix::ParseFiles.new(input_file: php_admin_path).parse_files(php_admin_path)
+
+builder = DataFix::BuildData.new(parsed_data: input, parsed_php_admin_data: php_admin_data)
+builder.build_account_data
+builder.build_subscription_data
