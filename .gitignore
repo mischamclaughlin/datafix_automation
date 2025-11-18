@@ -4,6 +4,7 @@
 *.xls
 *.yaml
 *.yml
+/data/output/*.json
 
 # temp files
 *.swp
