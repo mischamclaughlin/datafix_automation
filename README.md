@@ -75,11 +75,11 @@ Configuration lives in a YAML file (typically `config/datafix.yml`) and is split
 
 ```yaml
 files:
-  input_file: "data/input/November 2025 Datafix for missing subs requested 11th November (1).xlsx"
-  php_admin_file: "data/mappings/datafix_nov_11.yaml"
+  input_file: "data/input/xxx.xlsx"
+  php_admin_file: "data/mappings/xxx.yaml"
 
   # Optional: override the default output path
-  output_file: "data/output/SBS-152399-datafix.json"
+  output_file: "data/output/xxx.json"
   # Optional: placeholder for future logging
   log_file: "data/logs/..."
 
