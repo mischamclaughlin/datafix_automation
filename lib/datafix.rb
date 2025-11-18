@@ -15,5 +15,6 @@ module DataFix
   end
 end
 
+require 'datafix/version'
 require 'datafix/parse_files'
 require 'datafix/build_data'

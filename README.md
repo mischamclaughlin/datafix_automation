@@ -126,6 +126,7 @@ Options:
   - `accounts` – only build account data.
   - `subs` or `subscriptions` – only build subscription data.
   - `both` – run both builders (default behaviour).
+- `-v`, `--version` - show version number.
 - `-h`, `--help` – show help and exit.
 
 Resolution order for input/mapping file paths:
