@@ -35,11 +35,9 @@ Run all commands from the project root (the folder containing `Gemfile`).
 │   └── datafix.yml
 ├── data
 │   ├── input
-│   │   ├── November 2025 Datafix for missing subs requested 11th November (1).xlsx
-│   │   └── November 2025 Datafix for missing subs requested 7th november (3).xlsx
+│   │   └── INPUT_FILE.xlsx
 │   ├── mappings
-│   │   ├── datafix_nov_11.yaml
-│   │   └── datafix_nov_7.yaml
+│   │   └── MAPPING_FILE.yaml
 │   ├── output
 │   │   └── SBS-152399-datafix.json
 │   └── queries
@@ -50,9 +48,16 @@ Run all commands from the project root (the folder containing `Gemfile`).
 ├── lib
 │   ├── datafix
 │   │   ├── build_data.rb
-│   │   └── parse_files.rb
+│   │   ├── parse_files.rb
+│   │   └── version.rb
 │   └── datafix.rb
-└── README.md
+├── README.md
+└── spec
+    ├── datafix_spec
+    │   ├── build_data_spec.rb
+    │   ├── cli_datafix_spec.rb
+    │   └── parse_files_spec.rb
+    └── spec_helper.rb
 ```
 
 - `bin/datafix` – command‑line entrypoint.
