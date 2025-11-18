@@ -61,6 +61,11 @@ parser = OptionParser.new do |opts|
     end
   end
 
+  opts.on('-v', '--version', 'Show version number') do
+    puts "datafix version #{DataFix::VERSION}"
+    exit
+  end
+
   opts.on('-h', '--help', 'Show help for CLI commands') do
     puts opts
     exit

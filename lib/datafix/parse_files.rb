@@ -26,7 +26,7 @@ module DataFix
     private
 
     def normalize_header(header)
-      header.to_s.strip
+      header.to_s.strip.downcase.gsub(/\s+/, '_')
     end
 
     def header_key(header)
