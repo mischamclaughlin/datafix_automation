@@ -5,6 +5,7 @@
 *.yaml
 *.yml
 /data/output/*.json
+todo.txt
 
 # temp files
 *.swp
