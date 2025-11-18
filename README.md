@@ -25,7 +25,7 @@ bundle install
 Run all commands from the project root (the folder containing `Gemfile`).
 
 ## Project Structure
-<details><summary>Project Structure</summary>
+<details><summary>Project Tree</summary>
 
 ```
 .
@@ -59,7 +59,9 @@ Run all commands from the project root (the folder containing `Gemfile`).
     │   └── parse_files_spec.rb
     └── spec_helper.rb
 ```
+</details>
 
+### Structure
 - `bin/datafix` – command‑line entrypoint.
 - `lib/datafix.rb` – defines the `DataFix` module and requires subcomponents.
 - `lib/datafix/parse_files.rb` – `DataFix::ParseFiles`, handles XLSX/YAML parsing and column selection.
@@ -72,7 +74,6 @@ Run all commands from the project root (the folder containing `Gemfile`).
 - `config/datafix.yml` – default configuration (see below).
 
 > `bin/datafix` reads configuration via `DataFix.config`, which looks for `config/datafix.yml` relative to the project root / library paths.
-</details>
 
 ## Configuration
 
