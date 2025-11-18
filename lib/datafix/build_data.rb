@@ -12,16 +12,17 @@ module DataFix
         entry.each do |main_value, nested_data|
           @parsed_php_admin_data.each do |php_entry|
             if php_entry.key?(main_value)
-              built_data << {
+              data = {
+                'client_business_guid': main_value,
                 'client_business_id': php_entry[main_value]['client_business_id'].to_i,
                 'zuora_account_number': nested_data['zuora_account_number_for_client'].strip
               }
+              built_data << data if built_data.none? { |d| d[:client_business_guid] == data[:client_business_guid] }
             end
           end
         end
       end
 
-      puts built_data
       built_data
     end
 
@@ -44,6 +45,7 @@ module DataFix
             end
 
             built_data << {
+              'client_business_guid': main_value,
               'sub_id': php_entry[main_value]['sub_id'].to_i,
               'zuora_subscription_number': zuora_number
             }
@@ -51,7 +53,6 @@ module DataFix
         end
       end
 
-      puts built_data
       built_data
     end
   end
