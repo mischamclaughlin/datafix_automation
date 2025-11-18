@@ -2,6 +2,8 @@
 
 require 'yaml'
 require 'optparse'
+require 'json'
+require 'fileutils'
 
 $LOAD_PATH.unshift(File.expand_path('../lib', __dir__))
 require 'datafix'
@@ -10,6 +12,8 @@ options = {
   config: nil,
   input: nil,
   mapping: nil,
+  output: nil,
+  manual: nil,
   run_accounts: true,
   run_subscriptions: true
 }
@@ -29,6 +33,18 @@ parser = OptionParser.new do |opts|
     options[:mapping] = path
   end
 
+  opts.on('-o', '--output PATH', 'Path (and name) for output JSON file') do |path|
+    options[:output] = path
+  end
+
+  opts.on('--manual', 'Enable manual column selection') do
+    options[:manual] = true
+  end
+
+  opts.on('--no-manual', 'Disable manual column selection') do
+    options[:manual] = false
+  end
+
   opts.on('--only TARGETS', 'Run subset: accounts, subs, or both') do |targets|
     case targets.downcase
     when 'accounts'
@@ -45,7 +61,7 @@ parser = OptionParser.new do |opts|
     end
   end
 
-  opts.on('-h', '--help', 'Show this help message') do
+  opts.on('-h', '--help', 'Show help for CLI commands') do
     puts opts
     exit
   end
@@ -53,21 +69,22 @@ end
 
 parser.parse!
 
-config_path =
+config =
   if options[:config]
-    File.expand_path(options[:config], Dir.pwd)
+    path = File.expand_path(options[:config], Dir.pwd)
+    File.exist?(path) ? (YAML.load_file(path) || {}) : {}
   else
-    candidates = [
-      File.expand_path('../config/datafix.yml', __dir__),
-      File.expand_path('../datafix.yml', __dir__)
-    ]
-    candidates.find { |path| File.exist?(path) }
+    DataFix.config
   end
 
-config = config_path && File.exist?(config_path) ? (YAML.load_file(config_path) || {}) : {}
+settings = config['settings'] || {}
+settings = settings.merge('manual' => options[:manual]) unless options[:manual].nil?
+config = config.merge('settings' => settings)
 
-input_path = options[:input] || ARGV[0] || config['input_file']
-php_admin_path = options[:mapping] || ARGV[1] || config['php_admin_file']
+files = config['files'] || {}
+
+input_path = options[:input] || ARGV[0] || files['input_file']
+php_admin_path = options[:mapping] || ARGV[1] || files['php_admin_file']
 
 unless input_path && php_admin_path
   abort "#{parser}\n\n" \
@@ -75,10 +92,29 @@ unless input_path && php_admin_path
         "use --input/--mapping options, or set 'input_file' and 'php_admin_file' in a config YAML."
 end
 
-input = DataFix::ParseFiles.new(input_file: input_path).parse_files(input_path)
-php_admin_data = DataFix::ParseFiles.new(input_file: php_admin_path).parse_files(php_admin_path)
+input = DataFix::ParseFiles.new(input_file: input_path, config: config).parse_files(input_path)
+php_admin_data = DataFix::ParseFiles.new(input_file: php_admin_path, config: config).parse_files(php_admin_path)
 
 builder = DataFix::BuildData.new(parsed_data: input, parsed_php_admin_data: php_admin_data)
 
-builder.build_account_data if options[:run_accounts]
-builder.build_subscription_data if options[:run_subscriptions]
+results = {}
+results[:accounts] = builder.build_account_data if options[:run_accounts]
+results[:subscriptions] = builder.build_subscription_data if options[:run_subscriptions]
+
+json_output = JSON.pretty_generate(results)
+
+base_output_path =
+  if options[:output]
+    options[:output]
+  elsif files['output_file'] && !files['output_file'].empty?
+    files['output_file']
+  else
+    input_basename = File.basename(input_path, File.extname(input_path)).downcase.gsub(/\s+/, '_')
+    File.join('data/output', "#{input_basename}_datafix.json")
+  end
+
+full_output_path = File.expand_path(base_output_path, Dir.pwd)
+FileUtils.mkdir_p(File.dirname(full_output_path))
+File.write(full_output_path, json_output)
+
+puts json_output
