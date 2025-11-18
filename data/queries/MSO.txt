@@ -1,0 +1,7 @@
+SELECT cb.id as client_business_id, cb.sageone_guid as client_business_guid, cb.zuora_account_number,  s.id as sub_id, s.zuora_subscription_number, s.service_uid, s.business_id, ac.activated_at, cb.primary_service_provider
+FROM businesses cb 
+LEFT JOIN sop_settings_service_subscriptions s on cb.id=s.business_id and s.service_uid <> "addons" and s.active=1
+LEFT JOIN accountants_accountant_clients ac on ac.client_id=cb.id 
+WHERE cb.sageone_guid in (
+
+);
