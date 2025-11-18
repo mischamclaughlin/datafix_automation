@@ -1,4 +1,4 @@
-require_relative 'spec_helper'
+require_relative '../spec_helper'
 require 'stringio'
 
 RSpec.describe 'bin/datafix CLI' do
@@ -13,7 +13,7 @@ RSpec.describe 'bin/datafix CLI' do
   end
 
   def run_cli(*args)
-    script_path = File.expand_path('../bin/datafix', __dir__)
+    script_path = File.expand_path('../../bin/datafix', __dir__)
     original_argv = ARGV.dup
     ARGV.replace(args)
     load script_path

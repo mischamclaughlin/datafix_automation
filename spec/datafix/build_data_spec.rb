@@ -1,4 +1,4 @@
-require_relative 'spec_helper'
+require_relative '../spec_helper'
 
 RSpec.describe DataFix::ParseFiles do
   describe '#build_account_data' do
