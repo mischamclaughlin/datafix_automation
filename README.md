@@ -3,7 +3,8 @@
 Small Ruby utility to help automate datafix tickets:
 
 - An input spreadsheet (XLSX/XLS) that contains account / subscription information.
-- A PHP admin export (YAML) that contains IDs and related metadata.
+- A PHP admin export (YAML/JSON) that contains IDs and related metadata.
+> Recommended: export `.json` from PHP Admin, copy & paste into file and save as `.yml` as it allows trailing commas.
 
 The tool parses both sources and produces two sets of records:
 
@@ -82,7 +83,7 @@ Configuration lives in a YAML file (typically `config/datafix.yml`) and is split
 ```yaml
 files:
   input_file: "data/input/xxx.xlsx"
-  php_admin_file: "data/mappings/xxx.yaml"
+  php_admin_file: "data/mappings/xxx.json" # or .yaml
 
   # Optional: override the default output path
   output_file: "data/output/xxx.json"
@@ -108,6 +109,7 @@ settings:
   # Behaviour flags
   target_columns: false # if true, only use the configured target_* columns
   manual: false         # if true, prompt interactively for columns
+  old_data: true        # if true, include "old" values from the PHP export
 ```
 
 You can keep sensible defaults in `config/datafix.yml` and still override them with CLI flags for one-off runs.
@@ -129,9 +131,11 @@ Options:
 - `--manual` – enable manual column selection prompts.
 - `--no-manual` – disable manual column selection prompts.
 - `--only TARGETS` – run a subset of builders:
-  - `accounts` – only build account data.
+  - `acc` / `accounts` – only build account data.
   - `subs` or `subscriptions` – only build subscription data.
   - `both` – run both builders (default behaviour).
+  - `all` – build a combined `all_data` set with both account and subscription fields.
+- `--old BOOLEAN` – include "old" values from the PHP admin export (`true`/`on` or `false`/`off`, overrides `settings.old_data`).
 - `-v`, `--version` - show version number.
 - `-h`, `--help` – show help and exit.
 
@@ -185,24 +189,27 @@ ruby bin/datafix --manual
 
 ## Output Format
 
-Running `bin/datafix` produces a JSON object with two top-level keys:
+Running `bin/datafix` produces a JSON object whose top-level keys depend on what you ask the CLI to build:
 
-- `accounts` – array of account records built by `DataFix::BuildData#build_account_data`.
-- `subscriptions` – array of subscription records built by `DataFix::BuildData#build_subscription_data`.
+- `accounts` – present when account data is built (default and `--only acc/accounts`).
+- `subscriptions` – present when subscription data is built (default and `--only subs/subscriptions`).
+- `all_data` – present when using `--only all`, containing combined account + subscription records.
 
-Each account record includes:
+Each account record (in `accounts` or `all_data`) includes:
 
 - `client_business_guid`
 - `client_business_id`
 - `zuora_account_number`
+- `old_zuora_account_number` (only when `settings.old_data` is true or `--old true`)
 
-Each subscription record includes:
+Each subscription record (in `subscriptions` or `all_data`) includes:
 
 - `client_business_guid`
 - `sub_id`
 - `zuora_subscription_number`
+- `old_zuora_subscription_number` (only when `settings.old_data` is true or `--old true`)
 
-Example shape:
+Example shape when running the default (accounts + subscriptions):
 
 ```json
 {
@@ -239,6 +246,6 @@ When manual mode is enabled, `DataFix::ParseFiles` will:
 - For XLSX:
   - Print available column headers with indices.
   - Prompt you to choose a "main" lookup column and one or more additional columns to extract.
-- For YAML:
+- For YAML/JSON:
   - Locate the first `type: table` entry.
   - Print available keys and prompt similarly for the main key and additional keys.
