@@ -1,5 +1,6 @@
 require 'roo'
 require 'yaml'
+require 'json'
 
 module DataFix
   class ParseFiles
@@ -16,8 +17,8 @@ module DataFix
       case File.extname(file_path).downcase
       when '.xlsx', '.xls'
         parse_xlsx(file_path)
-      when '.yaml', '.yml'
-        parse_yaml(file_path)
+      when '.yaml', '.yml', '.json'
+        parse_php_admin_export(file_path)
       else
         raise "Unsupported file type: #{file_path}"
       end
@@ -92,8 +93,12 @@ module DataFix
       data
     end
 
-    def parse_yaml(file_path)
-      content = YAML.load_file(file_path)
+    def parse_php_admin_export(file_path)
+      if File.extname(file_path).downcase == '.json'
+        content = JSON.parse(File.read(file_path))
+      else
+        content = YAML.load_file(file_path)
+      end
       
       table_entry = content.find { |entry| entry['type'] == "table" }
 
@@ -161,6 +166,7 @@ module DataFix
 
         target_cols << column_index
       end
+      
       target_cols
     end
   end
