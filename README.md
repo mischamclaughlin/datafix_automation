@@ -217,14 +217,16 @@ Example shape when running the default (accounts + subscriptions):
     {
       "client_business_guid": "...",
       "client_business_id": 123,
-      "zuora_account_number": "A-000123"
+      "zuora_account_number": "A-000123",
+      "old_zuora_account_number": "A-000124"
     }
   ],
   "subscriptions": [
     {
       "client_business_guid": "...",
       "sub_id": 456,
-      "zuora_subscription_number": "SUB-000456"
+      "zuora_subscription_number": "SUB-000456",
+      "old_zuora_subscription_number": "SUB-000457"
     }
   ]
 }
