@@ -15,7 +15,9 @@ options = {
   output: nil,
   manual: nil,
   run_accounts: true,
-  run_subscriptions: true
+  run_subscriptions: true,
+  all: nil,
+  old: nil
 }
 
 parser = OptionParser.new do |opts|
@@ -45,9 +47,9 @@ parser = OptionParser.new do |opts|
     options[:manual] = false
   end
 
-  opts.on('--only TARGETS', 'Run subset: accounts, subs, or both') do |targets|
+  opts.on('--only TARGETS', 'Run subset: accounts, subs, both or all') do |targets|
     case targets.downcase
-    when 'accounts'
+    when 'acc', 'accounts'
       options[:run_accounts] = true
       options[:run_subscriptions] = false
     when 'subs', 'subscriptions'
@@ -56,8 +58,23 @@ parser = OptionParser.new do |opts|
     when 'both'
       options[:run_accounts] = true
       options[:run_subscriptions] = true
+    when 'all'
+      options[:run_accounts] = false
+      options[:run_subscriptions] = false
+      options[:all] = true
     else
-      abort "Unknown value for --only: #{targets} (expected accounts, subs, or both)"
+      abort "Unknown value for --only: #{targets} (expected accounts, subs, both, all)"
+    end
+  end
+
+  opts.on('--old BOOLEAN', 'Output all data including old data') do |value|
+    case value.downcase
+    when 'on', 'true'
+      options[:old] = true
+    when 'off', 'false'
+      options[:old] = false
+    else
+      abort "Unknown value for --old: #{value} (expected true or false)"
     end
   end
 
@@ -84,6 +101,7 @@ config =
 
 settings = config['settings'] || {}
 settings = settings.merge('manual' => options[:manual]) unless options[:manual].nil?
+settings = settings.merge('old_data' => options[:old]) unless options[:old].nil?
 config = config.merge('settings' => settings)
 
 files = config['files'] || {}
@@ -100,11 +118,12 @@ end
 input = DataFix::ParseFiles.new(input_file: input_path, config: config).parse_files(input_path)
 php_admin_data = DataFix::ParseFiles.new(input_file: php_admin_path, config: config).parse_files(php_admin_path)
 
-builder = DataFix::BuildData.new(parsed_data: input, parsed_php_admin_data: php_admin_data)
+builder = DataFix::BuildData.new(parsed_data: input, parsed_php_admin_data: php_admin_data, config: config)
 
 results = {}
-results[:accounts] = builder.build_account_data if options[:run_accounts]
-results[:subscriptions] = builder.build_subscription_data if options[:run_subscriptions]
+results[:accounts] = builder.build_all_data('accounts') if options[:run_accounts]
+results[:subscriptions] = builder.build_all_data('subscriptions') if options[:run_subscriptions]
+results[:all_data] = builder.build_all_data('all') if options[:all]
 
 json_output = JSON.pretty_generate(results)
 

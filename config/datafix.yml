@@ -1,11 +1,9 @@
 files:
-  input_file: "data/input/xxx.xlsx"
-  php_admin_file: "data/mappings/xxx.yaml"
+  input_file: "data/input/xxxxxxxxxxxx.xlsx"
+  php_admin_file: "data/mappings/xxxxxxxxxxxx.json"
 
-  # Optional: override the default output path
-  output_file: "data/output/xxx.json"
-  # Optional: placeholder for future logging
-  log_file: "data/logs/..."
+  output_file: "data/output/xxxxxxxxxxxx.json" # Optional: override the default output path
+  log_file: "data/logs/xxxxxxxxxxxx" # Optional: placeholder for future logging
 
 settings:
   # Input spreadsheet (XLSX/XLS)
@@ -25,5 +23,5 @@ settings:
 
   # Behaviour flags
   target_columns: false # if true, only use the configured target_* columns
-  manual: false         # if true, prompt interactively for columns
-  
+  manual: false # if true, prompt interactively for columns
+  old_data: true # if true, include old data in output
