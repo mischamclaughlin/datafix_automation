@@ -1,6 +1,6 @@
 files:
   input_file: "data/input/xxxxxxxxxxxx.xlsx"
-  php_admin_file: "data/mappings/xxxxxxxxxxxx.yml"
+  php_admin_file: "data/mappings/xxxxxxxxxxxx.yaml"
 
   output_file: "data/output/xxxxxxxxxxxx.json" # Optional: override the default output path
   log_file: "data/logs/xxxxxxxxxxxx" # Optional: placeholder for future logging
