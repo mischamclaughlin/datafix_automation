@@ -14,6 +14,7 @@ options = {
   mapping: nil,
   output: nil,
   manual: nil,
+  target_columns: nil,
   run_accounts: true,
   run_subscriptions: true,
   all: nil,
@@ -45,6 +46,10 @@ parser = OptionParser.new do |opts|
 
   opts.on('--no-manual', 'Disable manual column selection') do
     options[:manual] = false
+  end
+
+  opts.on('--target-columns', 'Use configured target columns') do
+    options[:target_columns] = true
   end
 
   opts.on('--only TARGETS', 'Run subset: accounts, subs, both or all') do |targets|
@@ -79,7 +84,7 @@ parser = OptionParser.new do |opts|
   end
 
   opts.on('-v', '--version', 'Show version number') do
-    puts "datafix version #{DataFix::VERSION}"
+    puts "DataFix version #{DataFix::VERSION}"
     exit
   end
 
@@ -102,6 +107,7 @@ config =
 settings = config['settings'] || {}
 settings = settings.merge('manual' => options[:manual]) unless options[:manual].nil?
 settings = settings.merge('old_data' => options[:old]) unless options[:old].nil?
+settings = settings.merge('target_columns' => options[:target_columns]) unless options[:target_columns].nil?
 config = config.merge('settings' => settings)
 
 files = config['files'] || {}
@@ -121,8 +127,8 @@ php_admin_data = DataFix::ParseFiles.new(input_file: php_admin_path, config: con
 builder = DataFix::BuildData.new(parsed_data: input, parsed_php_admin_data: php_admin_data, config: config)
 
 results = {}
-results[:accounts] = builder.build_all_data('accounts') if options[:run_accounts]
-results[:subscriptions] = builder.build_all_data('subscriptions') if options[:run_subscriptions]
+results[:accounts] = builder.build_account_data if options[:run_accounts]
+results[:subscriptions] = builder.build_subscription_data if options[:run_subscriptions]
 results[:all_data] = builder.build_all_data('all') if options[:all]
 
 json_output = JSON.pretty_generate(results)
